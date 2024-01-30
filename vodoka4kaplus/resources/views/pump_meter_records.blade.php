@@ -38,7 +38,7 @@
         @foreach($pump_meter_records as $el)
             <tr>
                 <th>{{ substr($el->begin_date, 0, 7) }}</th>
-                <td>{{ $el->amount_volume }} м^3</td>
+                <td>{{ $el->amount_volume }} м<sup>3</sup></td>
             </tr>
         @endforeach
     </tbody>
