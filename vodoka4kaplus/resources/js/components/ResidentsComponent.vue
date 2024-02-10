@@ -39,6 +39,7 @@ onMounted(() => {
 
 <template>
     <div>
+        <h1 class="mt-3">Список подключенных дачников</h1>
         <p v-for="res in residents">
             <router-link :to="{name: 'residents.resident', params: { resident: res['id']}}">{{ res['fio'] }}</router-link>
         </p>

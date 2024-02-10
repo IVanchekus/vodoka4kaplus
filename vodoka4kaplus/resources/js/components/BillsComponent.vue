@@ -1,5 +1,20 @@
 <template>
     <div>
+        <h1 class="mt-3">Добро пожаловать на Водокачка+</h1>
+        <h2>Полный список счетов</h2>
+        
+        <form @submit.prevent="countBills">
+            <div class="mb-3">
+            <label class="form-label" for="period_id">Произвести перерасчет необходимого периода</label>
+            <!-- <input class="form-control" type="number" id="period_id" name="period_id" placeholder="ID периода"> -->
+            <select id="period_id" class="form-control" name="period_id" v-model="period_id">
+                <option :value="null"></option>
+                <option v-for="period in periods" :value="period.id">{{ period.begin_date.slice(0,7) }}</option>
+            </select>
+            </div>
+            <button class="btn btn-primary" type="submit">Перерасчет</button>
+        </form>
+
         <div class="mt-3">
             <label for="filter">Фильтрация</label>
             <select class="form-select" name="filter" id="filter" v-model="month">
@@ -36,18 +51,19 @@ import { ref } from 'vue';
 
 export default{
     data(){ return{
-        bills: [],
+        bills: ref([]),
         month: ref(),
-        periods: []
+        periods: [],
+        period_id: ref()
     }},
     methods: {
         getFilter: function(){
-            console.log(this.month)
+            //console.log(this.month)
             if (this.month != null){
                 axios
                 .get('/api/countBills/filter/' + this.month)
                 .then((response) =>{
-                    console.log(response)
+                    //console.log(response)
                     this.bills = response.data
                 })
             }
@@ -55,7 +71,7 @@ export default{
                 axios
                 .get('/api/countBills/filter_null/')
                 .then((response) =>{
-                    console.log(response)
+                    //console.log(response)
                     this.bills = response.data
                 });
                 axios
@@ -64,6 +80,18 @@ export default{
                         this.periods = response.data
                     })
             }
+        },
+
+        countBills: function() {
+            axios
+                .post('/countBills', {period_id: this.period_id})
+                .then((response) => {
+                    //console.log(response.data)
+                    if (response.data != 0){
+                        this.bills.push(response.data)
+                    }
+                });
+            this.getFilter()
         }
     },
     mounted() {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Bill;
 use App\MonthCosts;
+use App\PumpMeterRecord;
 use App\Resident;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,12 +12,7 @@ use Illuminate\Support\Facades\DB;
 class MainController extends Controller
 {
     public function index(){
-        $bills = Bill::join('periods', 'bills.period_id', '=','periods.id')
-            ->join('residents', 'bills.resident_id', '=', 'residents.id')
-            ->select('fio', 'begin_date', 'amount_rub', 'period_id')
-            ->orderby('period_id')
-            ->get();
-        return view('index', ['months' => DB::table('periods')->get()]);
+        return view('layout');
     }
 
     public function filter($id){
@@ -42,24 +38,25 @@ class MainController extends Controller
         return DB::table('periods')->get();
     }
 
-    public function month_costs(Request $request){
+    public function month_costs(){
         $monthcosts = new MonthCosts();
-        return view('month_costs', ['message' => $request->get('message') ? $request->get('message') : false, 'monthcosts' => $monthcosts->orderby('month')->get()]);
+        //view('month_costs', ['message' => $request->get('message') ? $request->get('message') : false, 'monthcosts' => $monthcosts->orderby('month')->get()])
+        return $monthcosts->orderby('month')->get();
     }
 
     public function month_costs_check(Request $request){
         $monthcosts = new MonthCosts();
-        $valid = $request->validate([
-            'month' => 'required',
-            'costs' => 'required|numeric'
-        ]);
+        // $valid = $request->validate([
+        //     'month' => 'required',
+        //     'costs' => 'required|numeric'
+        // ]);
 
         $month = $request->input('month');
         $costs = $request->input('costs');
 
         if (count(DB::table('month_costs')->where('month', 'LIKE', substr($month, 0, 7) . '%')->get()) > 0){
             DB::table('month_costs')->where('month', 'LIKE', substr($month, 0, 7) . '%')->update(['costs' => $costs]);
-            return redirect()->route('month_costs', ['message' => substr($month, 0, 7)]);
+            return 0;
         }
 
         $monthcosts->month = $month;
@@ -67,22 +64,23 @@ class MainController extends Controller
 
         $monthcosts->save();
 
-        return redirect()->route('month_costs');
+        return $monthcosts;
     }
 
-    public function pump_meter_records(Request $request){
+    public function pump_meter_records(){
         $pump_meter_records = DB::table('pump_meter_records')
             ->join('periods', 'pump_meter_records.period_id', '=', 'periods.id')
             ->get();
-        return view('pump_meter_records', ['message' => $request->get('message') ? $request->get('message') : false, 
-                    'pump_meter_records' => $pump_meter_records]);
+            //view('pump_meter_records', ['message' => $request->get('message') ? $request->get('message') : false, 
+           // 'pump_meter_records' => $pump_meter_records])
+        return $pump_meter_records;
     }
 
     public function pump_meter_records_check(Request $request){
-        $valid = $request->validate([
-            'month' => 'required',
-            'amount' => 'required|numeric'
-        ]);
+        // $valid = $request->validate([
+        //     'month' => 'required',
+        //     'amount' => 'required|numeric'
+        // ]);
 
         $month = $request->input('month');
         $amount = $request->input('amount');
@@ -95,12 +93,18 @@ class MainController extends Controller
         $periods = DB::table('periods')->where('begin_date', 'LIKE', substr($month, 0, 7) . '%')->get();
 
         if(count(DB::table('pump_meter_records')->where('period_id', '=', $periods[0]->id)->get()) > 0){
-            return redirect()->route('pump_meter_records', ['message' => substr($month, 0, 7)]);
+            return 0;
         }
 
         DB::table('pump_meter_records')->insert(['period_id' => $periods[0]->id, 'amount_volume' => $amount]);
+        $pmr = DB::table('pump_meter_records')
+            ->join('periods', 'pump_meter_records.period_id', '=', 'periods.id')
+            ->where('period_id', '=', $periods[0]->id)
+            ->get();
 
-        return redirect()->route('pump_meter_records');
+        // $pmr = new PumpMeterRecord();
+
+        return $pmr;
     }
 
     public function countBills(Request $request){
@@ -132,15 +136,23 @@ class MainController extends Controller
         $residents_area_sum = DB::table('residents')->sum('area');
         $month_costs = DB::table('month_costs')->where('month', 'LIKE', substr($periods, 0, 7) . '%')->value('costs');
 
+        $bill = null;
         foreach(DB::table('residents')->get() as $resident){
             if (substr($resident->start_date, 0, 7) <= substr($periods, 0, 7)){
                 $amount_rub = round($periods_diff * $resident->area / $residents_area_sum * $month_costs, 2);
-                Bill::updateOrCreate(['period_id' => $period_id, 'resident_id' => $resident->id], [
+                $bill = Bill::updateOrCreate(['period_id' => $period_id, 'resident_id' => $resident->id], [
                     'amount_rub' => $amount_rub
                 ]);
             }
         }
         //return $pump_meter_records_per . ' - ' . substr($periods_ordered, 0, 7) . ' - ' . $month_costs . ' - ' . $residents_area_sum;
-        return redirect()->route('index');
+        if ($bill !== null)
+        {
+            return $bill
+            ->join('periods', 'bills.period_id', '=', 'periods.id')
+            ->join('residents', 'bills.resident_id', '=', 'residents.id')
+            ->get()[0];
+        }
+        return 0;
     }
 }

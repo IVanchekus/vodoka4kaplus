@@ -14,6 +14,11 @@ import VueRouter from 'vue-router';
 import ResidentsComponent from "./components/ResidentsComponent.vue";
 import ResidentInfoComponent from "./components/ResidentInfoComponent.vue";
 import BillsComponent from "./components/BillsComponent.vue";
+import MonthCosts from "./components/MonthCosts.vue";
+import BaseLayout from "./components/BaseLayout.vue";
+import PumpMeterRecords from "./components/PumpMeterRecordsComponent.vue";
+import LoginComponent from "./components/auth/LoginComponent.vue";
+import RegisterComponent from "./components/auth/RegisterComponent.vue";
 
 Vue.use(VueRouter);
 
@@ -40,6 +45,26 @@ const routes = [
         path: '/',
         name: 'bills.filter',
         component: BillsComponent
+    },
+    {
+        path: '/month_costs',
+        name: 'month_costs',
+        component: MonthCosts
+    },
+    {
+        path: '/pump_meter_records',
+        name: 'pump_meter_records',
+        component: PumpMeterRecords
+    },
+    {
+        path: '/login',
+        name: 'auth.login',
+        component: LoginComponent
+    },
+    {
+        path: '/register',
+        name: 'auth.register',
+        component: RegisterComponent
     }
 ];
 
@@ -50,7 +75,8 @@ const router = new VueRouter({
 
 const app = new Vue({
     el: '#residentapp',
-    router: router
+    router: router,
+    render: h => h(BaseLayout)
 });
 
 
