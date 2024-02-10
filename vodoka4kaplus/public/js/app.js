@@ -443,7 +443,7 @@ var render = function render() {
     staticClass: "navbar navbar-expand-md navbar-dark bg-dark"
   }, [_c("div", {
     staticClass: "container"
-  }, [_c("router-link", {
+  }, [_vm.name ? _c("div", [_c("router-link", {
     staticClass: "navbar-brand",
     attrs: {
       to: {
@@ -471,7 +471,7 @@ var render = function render() {
         name: "residents.residents"
       }
     }
-  }, [_vm._v("Дачники")]), _vm._v(" "), _c("div", {
+  }, [_vm._v("Дачники")])], 1) : _vm._e(), _vm._v(" "), _c("div", {
     staticClass: "collapse navbar-collapse",
     attrs: {
       id: "navbarSupportedContent"
@@ -507,7 +507,7 @@ var render = function render() {
       "aria-haspopup": "true",
       "aria-expanded": "false"
     }
-  }, [_vm._v("\n                            " + _vm._s(_vm.name) + "\n                        ")]), _vm._v(" "), _vm._m(0)]) : _vm._e()])])], 1)]), _vm._v(" "), _c("div", {
+  }, [_vm._v("\n                            " + _vm._s(_vm.name) + "\n                        ")]), _vm._v(" "), _vm._m(0)]) : _vm._e()])])])]), _vm._v(" "), _c("div", {
     staticClass: "container"
   }, [_c("router-view")], 1)]);
 };

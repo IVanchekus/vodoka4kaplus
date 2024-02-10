@@ -2,10 +2,12 @@
     <div>
         <nav class="navbar navbar-expand-md navbar-dark bg-dark">
             <div class="container">
+                <div v-if="name">
                 <router-link class="navbar-brand" :to="{name: 'bills.filter'}">Главная</router-link>
                 <router-link class="navbar-brand" :to="{name: 'month_costs'}">Тариф</router-link>
                 <router-link class="navbar-brand" :to="{name: 'pump_meter_records'}">Показания счетчиков</router-link>
                 <router-link class="navbar-brand" :to="{name: 'residents.residents'}">Дачники</router-link>
+                </div>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Right Side Of Navbar -->
